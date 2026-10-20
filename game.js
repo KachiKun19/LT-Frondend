@@ -1,5 +1,22 @@
+function rect(x1, y1, x2, y2) {
+  const cells = [];
+  for (let x = x1; x <= x2; x++) {
+    for (let y = y1; y <= y2; y++) {
+      cells.push({ x, y });
+    }
+  }
+  return cells;
+}
+
+const hLine = (y, x1, x2) => rect(x1, y, x2, y);
+const vLine = (x, y1, y2) => rect(x, y1, x, y2);
+
 const LEVELS = [
   { number: 1, name: "Dễ", cols: 20, rows: 20, speed: 200, target: 10, wrap: true, walls: [] },
+  {
+    number: 2, name: "Trung bình", cols: 20, rows: 20, speed: 160, target: 15, wrap: false,
+    walls: [...hLine(5, 6, 15), ...hLine(16, 6, 15)]
+  },
 ];
 
 const $ = id => document.getElementById(id);
