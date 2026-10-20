@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Snake</title>
+  <style>
+    :root {
+      --cols: 20;
+      --rows: 20;
+      --speed: 200ms;
+      --cell: min(28px, calc((100vw - 40px) / var(--cols)), calc((100vh - 220px) / var(--rows)));
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: sans-serif;
+      color: #eee;
+      background: #111;
+    }
+
+    .game,
+    .overlay {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .hud {
+      display: flex;
+      gap: 20px;
+    }
+
+    .board {
+      position: relative;
+      width: calc(var(--cols) * var(--cell));
+      height: calc(var(--rows) * var(--cell));
+      background: #000;
+      border: 2px solid #4ade80;
+    }
+
+    .snake,
+    .food,
+    .wall {
+      position: absolute;
+      width: var(--cell);
+      height: var(--cell);
+    }
+
+    .snake {
+      background: #4ade80;
+      border-radius: 30%;
+      transition: transform var(--speed) linear;
+    }
+
+    .head {
+      background: #16a34a;
+    }
+
+    .food {
+      background: #fb7185;
+      border-radius: 50%;
+    }
+
+    .wall {
+      background: #475569;
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      justify-content: center;
+      text-align: center;
+      background: #000;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .locked {
+      opacity: .3;
+    }
+
+    button {
+      padding: 6px 14px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+<div class="game">
+  <h2>SNAKE · <span id="levelBadge"></span></h2>
+  <div class="hud">
+    <span>Điểm: <b id="score">0</b></span>
+    <span>Mục tiêu: <b id="target">0</b></span>
+    <span>Kỷ lục: <b id="best">0</b></span>
+  </div>
+  <div class="board" id="board">
+    <div class="overlay" id="overlay">
+      <h2 id="overlayTitle"></h2>
+      <p id="overlayText"></p>
+      <button id="overlayBtn"></button>
+    </div>
+  </div>
+  <div>
+    <button class="level-btn">1</button>
+    <button class="level-btn">2</button>
+    <button class="level-btn">3</button>
+    <button class="level-btn">4</button>
+    <button class="level-btn">5</button>
+  </div>
+</div>
+<script src="game.js"></script>
+</body>
+</html>
