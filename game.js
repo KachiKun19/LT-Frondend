@@ -17,12 +17,16 @@ const LEVELS = [
     number: 2, name: "Trung bình", cols: 20, rows: 20, speed: 160, target: 15, wrap: false,
     walls: [...hLine(5, 6, 15), ...hLine(16, 6, 15)]
   },
+  {
+    number: 3, name: "Mồi chạy", cols: 20, rows: 20, speed: 150, target: 15, wrap: true,
+    walls: [], foodMove: 3
+  },
 ];
 
 const $ = id => document.getElementById(id);
 const board = $("board"), overlay = $("overlay"), btns = document.querySelectorAll(".level-btn");
 let lv = 0, L, unlocked = 1, state, timer, snake, dir, next, food, score, best;
-let segs = [], foodEl;
+let segs = [], foodEl, tick;
 
 const same = (a, b) => a.x === b.x && a.y === b.y;
 const rnd = n => Math.floor(Math.random() * n) + 1;
@@ -42,15 +46,16 @@ function move(e, p) {
 function draw() {
   while (segs.length < snake.length) segs.push(cell(segs.length ? "snake" : "snake head"));
   while (segs.length > snake.length) segs.pop().remove();
-  segs.forEach((e, i) => {
-    const p = snake[i];
-    const jump = !e.p || Math.abs(e.p.x - p.x) > 1 || Math.abs(e.p.y - p.y) > 1;
-    e.style.transition = jump ? "none" : "";
-    move(e, p);
-    e.p = p;
-  });
-  if (!foodEl) foodEl = cell("food");
-  move(foodEl, food);
+  segs.forEach((e, i) => slide(e, snake[i]));
+  if(!foodEl) foodEl = cell("food");
+  slide(foodEl,food);
+}
+
+function slide(e, p){
+  const jump = !e.p || Math.abs(e.p.x - p.x) > 1 || Math.abs(e.p.y - p.y) > 1;
+  e.style.transition = jump ? "none" : "";
+  move(e, p);
+  e.p = p;
 }
 
 function loadLevel(i) {
@@ -75,6 +80,7 @@ function reset() {
   snake = [{ x: 5, y }, { x: 4, y }, { x: 3, y }];
   dir = next = { x: 1, y: 0 };
   score = 0;
+  tick = 0;
   segs.forEach(e => e.remove());
   segs = [];
   placeFood();
@@ -110,8 +116,21 @@ function step() {
     placeFood();
   } else {
     snake.pop();
+    if(L.foodMove && ++tick % L.foodMove === 0) moveFood();
   }
   draw();
+}
+
+function moveFood() {
+  const dirs = [[1,0],[-1,0],[0,1],[0,-1]].sort(() => Math.random() - 0.5);
+  for(const[dx,dy] of dirs) {
+    const p = {x: food.x + dx, y: food.y + dy};
+    const inside = p.x >= 1 && p.x <= L.cols && p.y >= 1 && p.y <= L.rows;
+    if(inside && ![...snake,...L.walls].some(q => same(q,p))) {
+      food = p;
+      return;
+    }
+  }
 }
 
 function placeFood() {
