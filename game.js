@@ -12,21 +12,25 @@ const hLine = (y, x1, x2) => rect(x1, y, x2, y);
 const vLine = (x, y1, y2) => rect(x, y1, x, y2);
 
 const LEVELS = [
-  { number: 1, name: "Dễ", cols: 20, rows: 20, speed: 200, target: 10, wrap: true, walls: [] },
+  { number: 1, name: "Cơ bản", cols: 20, rows: 20, speed: 200, target: 10, wrap: true, walls: [] },
   {
-    number: 2, name: "Trung bình", cols: 20, rows: 20, speed: 160, target: 15, wrap: false,
+    number: 2, name: "Tường biên", cols: 20, rows: 20, speed: 160, target: 12, wrap: false,
     walls: [...hLine(5, 6, 15), ...hLine(16, 6, 15)]
   },
   {
     number: 3, name: "Mồi chạy", cols: 20, rows: 20, speed: 150, target: 15, wrap: true,
     walls: [], foodMove: 3
   },
+  {
+    number: 4, name: "Mồi hết hạn", cols: 20, rows: 20, speed: 140, target: 15, wrap: false,
+    walls: [], foodLife: 22
+  },
 ];
 
 const $ = id => document.getElementById(id);
 const board = $("board"), overlay = $("overlay"), btns = document.querySelectorAll(".level-btn");
 let lv = 0, L, unlocked = 1, state, timer, snake, dir, next, food, score, best;
-let segs = [], foodEl, tick;
+let segs = [], foodEl, tick, age;
 
 const same = (a, b) => a.x === b.x && a.y === b.y;
 const rnd = n => Math.floor(Math.random() * n) + 1;
@@ -49,6 +53,8 @@ function draw() {
   segs.forEach((e, i) => slide(e, snake[i]));
   if(!foodEl) foodEl = cell("food");
   slide(foodEl,food);
+  const blink = L.foodLife > 0 && L.foodLife - age < 8 && age % 2 ===1;
+  foodEl.classList.toggle("blink", blink);
 }
 
 function slide(e, p){
@@ -117,6 +123,7 @@ function step() {
   } else {
     snake.pop();
     if(L.foodMove && ++tick % L.foodMove === 0) moveFood();
+    if(L.foodLife && ++age >= L.foodLife) placeFood();
   }
   draw();
 }
@@ -136,6 +143,7 @@ function moveFood() {
 function placeFood() {
   do food = { x: rnd(L.cols), y: rnd(L.rows) };
   while ([...snake, ...L.walls].some(p => same(p, food)));
+  age = 0;
 }
 
 function end() {
