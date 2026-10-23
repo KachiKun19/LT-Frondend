@@ -25,12 +25,16 @@ const LEVELS = [
     number: 4, name: "Mồi hết hạn", cols: 20, rows: 20, speed: 140, target: 15, wrap: false,
     walls: [], foodLife: 22
   },
+  {
+    number: 5, name: "Tăng tốc", cols: 20, rows: 20, speed: 140, target: 20, wrap: false,
+    walls: [], speedUp: 5, minSpeed: 40
+  },
 ];
 
 const $ = id => document.getElementById(id);
 const board = $("board"), overlay = $("overlay"), btns = document.querySelectorAll(".level-btn");
-let lv = 0, L, unlocked = 1, state, timer, snake, dir, next, food, score, best;
-let segs = [], foodEl, tick, age;
+let lv = 0, L, state, timer, snake, dir, next, food, score, best;
+let segs = [], foodEl, tick, age, speed;
 
 const same = (a, b) => a.x === b.x && a.y === b.y;
 const rnd = n => Math.floor(Math.random() * n) + 1;
@@ -98,7 +102,14 @@ function start() {
   reset();
   overlay.classList.add("hidden");
   state = "playing";
-  timer = setInterval(step, L.speed);
+  run(L.speed);
+}
+
+function run(ms) {
+  clearInterval(timer);
+  speed = ms;
+  document.documentElement.style.setProperty("--speed", ms + "ms")
+  timer =setInterval(step, ms);
 }
 
 function step() {
@@ -119,6 +130,7 @@ function step() {
     score++;
     hud();
     if (score >= L.target) { draw(); return win(); }
+    if(L.speedUp) run(Math.max(L.minSpeed, speed - L.speedUp));
     placeFood();
   } else {
     snake.pop();
@@ -165,7 +177,6 @@ function win() {
   end();
   state = "win";
   const hasNext = lv + 1 < LEVELS.length;
-  if (hasNext) unlocked = Math.max(unlocked, lv + 2);
   renderBtns();
   if (hasNext) show(`Hoàn thành màn ${L.number}!`, `Bạn đã ăn đủ ${L.target} mồi.`, "Màn tiếp");
   else show("Bạn đã phá đảo!", "Hoàn thành màn cuối cùng.", "Chơi lại");
@@ -179,7 +190,7 @@ function pause() {
   } else {
     overlay.classList.add("hidden");
     state = "playing";
-    timer = setInterval(step, L.speed);
+    run(speed);
   }
 }
 
@@ -203,7 +214,7 @@ function hud() {
 }
 
 function renderBtns() {
-  btns.forEach((b, i) => b.classList.toggle("locked", i >= unlocked || !LEVELS[i]));
+  btns.forEach((b, i) => b.classList.toggle("locked", !LEVELS[i]));
 }
 
 btns.forEach((b, i) => b.onclick = () => {
