@@ -20,7 +20,7 @@
       align-items: center;
       font-family: sans-serif;
       color: #eee;
-      background: #111;
+      background: #111 url("image/background.jpg") center / cover no-repeat fixed;
     }
 
     .game,
@@ -38,6 +38,7 @@
 
     .board {
       position: relative;
+      overflow: hidden;
       width: calc(var(--cols) * var(--cell));
       height: calc(var(--rows) * var(--cell));
       background: #000;
@@ -63,13 +64,12 @@
     }
 
     .food {
-      background: #fb7185;
-      border-radius: 50%;
+      background: url("image/apple.png") center / contain no-repeat;
       transition: transform var(--speed) linear;
     }
 
     .wall {
-      background: #475569;
+      background: url("image/wall.png") center / 130% no-repeat;
     }
 
     .blink {
