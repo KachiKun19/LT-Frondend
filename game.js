@@ -29,12 +29,16 @@ const LEVELS = [
     number: 5, name: "Tăng tốc", cols: 20, rows: 20, speed: 140, target: 20, wrap: false,
     walls: [], speedUp: 5, minSpeed: 40
   },
+  {
+    number: 6, name: "Mồi sinh tường", cols: 20, rows: 20, speed: 130, target: 20, wrap: false,
+    walls: [], growWalls: true
+  },
 ];
 
 const $ = id => document.getElementById(id);
 const board = $("board"), overlay = $("overlay"), btns = document.querySelectorAll(".level-btn");
 let lv = 0, L, state, timer, snake, dir, next, food, score, best;
-let segs = [], foodEl, tick, age, speed;
+let segs = [], foodEl, tick, age, speed, walls;
 
 const same = (a, b) => a.x === b.x && a.y === b.y;
 const rnd = n => Math.floor(Math.random() * n) + 1;
@@ -77,8 +81,6 @@ function loadLevel(i) {
   document.documentElement.style.setProperty("--speed", L.speed + "ms");
   $("levelBadge").textContent = `Màn ${L.number} · ${L.name}`;
   best = +localStorage.getItem("snake-best-" + L.number) || 0;
-  board.querySelectorAll(".wall").forEach(e => e.remove());
-  L.walls.forEach(w => cell("wall", w));
   state = "ready";
   reset();
   renderBtns();
@@ -93,6 +95,9 @@ function reset() {
   tick = 0;
   segs.forEach(e => e.remove());
   segs = [];
+  walls = [...L.walls];
+  board.querySelectorAll(".wall").forEach(e => e.remove());
+  walls.forEach(w => cell("wall", w));
   placeFood();
   hud();
   draw();
@@ -123,7 +128,7 @@ function step() {
   }
   const eat = same(h, food);
   if ((eat ? snake : snake.slice(0, -1)).some(p => same(p, h))) return lose("Rắn tự cắn vào thân!");
-  if (L.walls.some(w => same(w, h))) return lose("Bạn đâm vào chướng ngại vật!");
+  if (walls.some(w => same(w, h))) return lose("Bạn đâm vào chướng ngại vật!");
 
   snake.unshift(h);
   if (eat) {
@@ -132,6 +137,7 @@ function step() {
     if (score >= L.target) { draw(); return win(); }
     if(L.speedUp) run(Math.max(L.minSpeed, speed - L.speedUp));
     placeFood();
+    if(L.growWalls) addWall();
   } else {
     snake.pop();
     if(L.foodMove && ++tick % L.foodMove === 0) moveFood();
@@ -140,12 +146,21 @@ function step() {
   draw();
 }
 
+function addWall() {
+  let w;
+  do w = {x : rnd(L.cols -2) +1, y : rnd(L.rows -2) + 1};
+  while([...snake, ...walls, food].some(p=>same(p,w))
+  || Math.abs(w.x - snake[0].x) + Math.abs(w.y - snake[0].y) < 4)
+  walls.push(w);
+  cell("wall", w);
+}
+
 function moveFood() {
   const dirs = [[1,0],[-1,0],[0,1],[0,-1]].sort(() => Math.random() - 0.5);
   for(const[dx,dy] of dirs) {
     const p = {x: food.x + dx, y: food.y + dy};
     const inside = p.x >= 1 && p.x <= L.cols && p.y >= 1 && p.y <= L.rows;
-    if(inside && ![...snake,...L.walls].some(q => same(q,p))) {
+    if(inside && ![...snake,...walls].some(q => same(q,p))) {
       food = p;
       return;
     }
@@ -154,7 +169,7 @@ function moveFood() {
 
 function placeFood() {
   do food = { x: rnd(L.cols), y: rnd(L.rows) };
-  while ([...snake, ...L.walls].some(p => same(p, food)));
+  while ([...snake, ...walls].some(p => same(p, food)));
   age = 0;
 }
 
