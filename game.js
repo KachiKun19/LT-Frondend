@@ -59,6 +59,9 @@ function draw() {
   while (segs.length < snake.length) segs.push(cell(segs.length ? "snake" : "snake head"));
   while (segs.length > snake.length) segs.pop().remove();
   segs.forEach((e, i) => slide(e, snake[i]));
+  const head = segs[0];
+  if (!head.firstChild) head.append(document.createElement("div"));
+  head.firstChild.style.rotate = Math.atan2(dir.y, dir.x) * 180 / Math.PI + "deg";
   if(!foodEl) foodEl = cell("food");
   slide(foodEl,food);
   const blink = L.foodLife > 0 && L.foodLife - age < 8 && age % 2 ===1;

@@ -20,7 +20,7 @@
       align-items: center;
       font-family: sans-serif;
       color: #eee;
-      background: #111 url("image/background.jpg") center / cover no-repeat fixed;
+      background: #111;
     }
 
     .game,
@@ -63,9 +63,41 @@
       background: #16a34a;
     }
 
+    .head div {
+      position: absolute;
+      inset: 0;
+    }
+
+    .head div::before,
+    .head div::after {
+      content: "";
+      position: absolute;
+      right: 15%;
+      width: 25%;
+      height: 25%;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: inset -2px 0 0 1px #111;
+    }
+
+    .head div::before {
+      top: 15%;
+    }
+
+    .head div::after {
+      bottom: 15%;
+    }
+
     .food {
-      background: url("image/apple.png") center / contain no-repeat;
       transition: transform var(--speed) linear;
+    }
+
+    .food::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: url("image/apple.png") center / contain no-repeat;
+      scale: 1.4;
     }
 
     .wall {
