@@ -9,7 +9,6 @@ function rect(x1, y1, x2, y2) {
 }
 
 const hLine = (y, x1, x2) => rect(x1, y, x2, y);
-const vLine = (x, y1, y2) => rect(x, y1, x, y2);
 
 const LEVELS = [
   { number: 1, name: "Cơ bản", cols: 20, rows: 20, speed: 200, target: 10, wrap: true, walls: [] },
@@ -27,7 +26,7 @@ const LEVELS = [
   },
   {
     number: 5, name: "Tăng tốc", cols: 20, rows: 20, speed: 140, target: 20, wrap: false,
-    walls: [], speedUp: 5, minSpeed: 40
+    walls: [], speedUp: 5, minSpeed: 50
   },
   {
     number: 6, name: "Mồi sinh tường", cols: 20, rows: 20, speed: 130, target: 20, wrap: false,
@@ -86,7 +85,6 @@ function loadLevel(i) {
   best = +localStorage.getItem("snake-best-" + L.number) || 0;
   state = "ready";
   reset();
-  renderBtns();
   show(`Màn ${L.number}`, `Ăn ${L.target} mồi để qua màn`, "Bắt đầu");
 }
 
@@ -116,7 +114,7 @@ function start() {
 function run(ms) {
   clearInterval(timer);
   speed = ms;
-  document.documentElement.style.setProperty("--speed", ms + "ms")
+  document.documentElement.style.setProperty("--speed", ms + "ms");
   timer =setInterval(step, ms);
 }
 
@@ -195,7 +193,6 @@ function win() {
   end();
   state = "win";
   const hasNext = lv + 1 < LEVELS.length;
-  renderBtns();
   if (hasNext) show(`Hoàn thành màn ${L.number}!`, `Bạn đã ăn đủ ${L.target} mồi.`, "Màn tiếp");
   else show("Bạn đã phá đảo!", "Hoàn thành màn cuối cùng.", "Chơi lại");
 }
@@ -231,12 +228,8 @@ function hud() {
   $("best").textContent = best;
 }
 
-function renderBtns() {
-  btns.forEach((b, i) => b.classList.toggle("locked", !LEVELS[i]));
-}
-
 btns.forEach((b, i) => b.onclick = () => {
-  if (!b.classList.contains("locked") && state !== "playing") loadLevel(i);
+  if (state !== "playing") loadLevel(i);
 });
 
 const KEYS = {
